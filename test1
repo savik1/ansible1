@@ -1,0 +1,44 @@
+---
+- name: Install default-jdk and maven
+  hosts: db
+  become: yes
+  tasks:
+  - name: Ensure default-jdk pkg is present
+    apt:
+      name: default-jdk
+      state: present
+  - name: Ensure Maven pkg is present
+    apt:
+      name: maven
+      state: present
+  - name: Ensure git pkg is present
+    apt:
+      name: git
+      state: present
+  - name: Clone Repository
+    git:
+      repo: https://github.com/boxfuse/boxfuse-sample-java-war-hello.git
+      dest: /home/sampleTest/
+  - name: Change the working directory and run mvn
+    command: mvn package
+    args:
+      chdir: /home/sampleTest/
+
+- name: Install default-jdk and tomcat8
+  hosts: web
+  become: yes
+  tasks:
+  - name: Ensure default-jdk pkg is present
+    apt:
+      name: default-jdk
+      state: present
+  - name: Ensure tomcat pkg is present
+    apt:
+      name: tomcat8
+      state: present
+  - name: Copy the file from
+    synchronize:
+      src: /home/sampleTest/target/hello-1.0.war
+      dest: /var/lib/tomcat8/webapps/hello-1.0.war
+      mode: pull
+    delegate_to: db
