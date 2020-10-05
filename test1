@@ -23,6 +23,11 @@
     command: mvn package
     args:
       chdir: /home/sampleTest/
+  - name: copy file from db to local
+    fetch:
+      src: /home/sampleTest/target/hello-1.0.war
+      dest: /tmp/hello-1.0.war
+      flat: yes
 
 - name: Install default-jdk and tomcat8
   hosts: web
@@ -36,9 +41,7 @@
     apt:
       name: tomcat8
       state: present
-  - name: Copy the file from
-    synchronize:
-      src: /home/sampleTest/target/hello-1.0.war
+  - name: copy file from local to web
+    copy:
+      src: /tmp/hello-1.0.war
       dest: /var/lib/tomcat8/webapps/hello-1.0.war
-      mode: pull
-    delegate_to: db
